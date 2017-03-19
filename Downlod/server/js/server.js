@@ -1,8 +1,9 @@
+var express = require('express');
+var querystring = require('querystring');
 var http = require('http');
 var url = require('url');
 var fs = require('fs');
-var querystring = require('querystring');
-var express = require('express');
+var readFile=require('./utils/readFile');
 
 function start() {
     function onCreated(request, response) {
@@ -19,38 +20,20 @@ function start() {
             if(data){
                 console.log(data);
                 if(data.id==="ryzhang"&&data.password==="000000"){
-                    readHTML("../main.html");
+                    readFile.readHTML("../main.html",response);
                 }else{
-                    response.write("");
+                    response.writeHead(200, {'Content-Type': 'text/plain; charset=utf8'});
+                    response.write("验证失败！");
                     response.end();
                 }
             }else{
-                console.log(paramter);
+                console.log("请求网页："+paramter);
                 if(paramter.split(".").lastIndexOf("html")){
                     // 输出请求的网址
                     var path = ".." + pathname;
                     // 从文件系统中读取请求的文件内容
-                    readHTML(path);
+                    readFile.readHTML(path,response);
                 }
-            }
-            /**
-             * 读取网页并返回
-             * @param path 网页所在路径
-             */
-            function readHTML(path) {
-                fs.readFile(path, function (err, data) {
-                    if (err) {
-                        console.log(err);
-                        // HTTP 状态码: 404 : NOT FOUND
-                        response.writeHead(404, {'Content-Type': 'text/html'});
-                    } else {
-                        // HTTP 状态码: 200 : OK
-                        response.writeHead(200, {'Content-Type': 'text/html'});
-                        // 响应文件内容
-                        response.write(data.toString());
-                        response.end();
-                    }
-                });
             }
         });
     }
